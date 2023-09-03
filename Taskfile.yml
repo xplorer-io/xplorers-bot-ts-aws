@@ -36,10 +36,8 @@ tasks:
 
   package:
     desc: Package and zip the application code for deployment
+    deps: [clean, install, compile]
     cmds:
-      - task: clean
-      - task: install
-      - task: compile
       - rm -rf node_modules && npm install --omit=dev
       - mkdir -p nodejs && cp -R node_modules nodejs
 
@@ -62,79 +60,62 @@ tasks:
 
       If you only want to test the slack feature, only supplying the SLACK_OAUTH_TOKEN is enough.
     cmds:
-      - |
-        SLACK_SECRET_NAME=slack-oauth-token-${TF_WORKSPACE}
-        SLACK_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${SLACK_SECRET_NAME} --query SecretString --output text 2>/dev/null)
+      - ignore_error: true
+        cmd: |
+          SLACK_SECRET_NAME=slack-oauth-token-${TF_WORKSPACE}
+          AZURE_SECRET_NAME=azure-openai-endpoint-${TF_WORKSPACE}
+          OPENAI_SECRET_NAME=azure-openai-key-${TF_WORKSPACE}
 
-        if [ -z "${SLACK_SECRET_VALUE}" ]; then
           aws secretsmanager create-secret --name ${SLACK_SECRET_NAME} --secret-string=${SLACK_OAUTH_TOKEN} --description="Slack OAuth Token"
-        else
-          aws secretsmanager update-secret --secret-id ${SLACK_SECRET_NAME} --secret-string=${SLACK_OAUTH_TOKEN}
-        fi
-
-      - |
-        AZURE_SECRET_NAME=azure-openai-endpoint-${TF_WORKSPACE}
-        AZURE_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${AZURE_SECRET_NAME} --query SecretString --output text 2>/dev/null)
-
-        if [ -z "${AZURE_SECRET_VALUE}" ]; then
           aws secretsmanager create-secret --name ${AZURE_SECRET_NAME} --secret-string=${AZURE_OPENAI_ENDPOINT} --description="Azure OpenAI Endpoint"
-        else
-          aws secretsmanager update-secret --secret-id ${AZURE_SECRET_NAME} --secret-string=${AZURE_OPENAI_ENDPOINT}
-        fi
-
-      - |
-        OPENAI_SECRET_NAME=azure-openai-key-${TF_WORKSPACE}
-        OPENAI_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${OPENAI_SECRET_NAME} --query SecretString --output text 2>/dev/null)
-
-        if [ -z "${OPENAI_SECRET_VALUE}" ]; then
           aws secretsmanager create-secret --name ${OPENAI_SECRET_NAME} --secret-string=${AZURE_OPENAI_KEY} --description="Azure OpenAI Key"
-        else
-          aws secretsmanager update-secret --secret-id ${OPENAI_SECRET_NAME} --secret-string=${AZURE_OPENAI_KEY}
-        fi
 
   terraform-fmt:
+    dir: terraform
     desc: Format terraform files
     cmds:
       - |
-        terraform -chdir=terraform fmt
+        terraform fmt
 
   terraform-init:
+    dir: terraform
     desc: Initialize terraform backend, providers, plugins and modules
     cmds:
       - |
-        terraform -chdir=terraform init \
+        terraform init \
         -backend-config="bucket=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -backend-config="key=${XPLORERS_ARTIFACTS_BUCKET_TERRAFORM_PREFIX}" \
         -backend-config="region=${AWS_DEFAULT_REGION}"
 
   terraform-plan:
+    dir: terraform
     desc: Creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.
+    deps: [terraform-init, package]
     cmds:
-      - task: terraform-init
-      - task: package
       - |
-        terraform -chdir=terraform plan \
+        terraform plan \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
 
   terraform-apply:
+    dir: terraform
     desc: Apply the planned changes to the target infrastructure
+    deps: [package, terraform-plan]
     cmds:
       - defer: { task: clean }
-      - task: package
-      - task: terraform-plan
       - |
-        terraform -chdir=terraform apply -auto-approve \
+        terraform apply -auto-approve \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
 
   terraform-destroy:
+    dir: terraform
     desc: Delete all resources created by terraform
     cmds:
       - |
-        terraform -chdir=terraform destroy -auto-approve \
+        terraform destroy -auto-approve \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
