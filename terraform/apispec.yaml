@@ -1,0 +1,34 @@
+---
+openapi: 3.0.3
+info:
+  title: Xplorers API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+paths:
+  /:
+    post:
+      responses:
+          200:
+            description: 200 response
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: aws
+        httpMethod: POST
+        responses:
+          default:
+            description: XplorersBot Response
+            statusCode: 200
+        passthroughBehavior : when_no_templates
+        contentHandling : CONVERT_TO_TEXT
+        uri: arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${aws_region}:${aws_account_id}:function:${lambda_name}/invocations
+
+components:
+  schemas:
+    Empty:
+      title: Empty Schema
+      type: object

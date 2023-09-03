@@ -1,0 +1,37 @@
+name: Deploy Xplorers Bot to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-xplorers-bot-to-aws:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install taskfile
+      run: |
+        sudo snap install task --classic
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN_FOR_GITHUB_ACTIONS }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - id: deploy
+      name: Deploy XplorersBot to AWS
+      run: |-
+        export TF_WORKSPACE=prod
+        task terraform-apply

@@ -1,0 +1,140 @@
+version: 3
+
+dotenv:
+  - ./configuration/defaults.conf
+
+vars:
+  FUNCTION_ARTIFACT: terraform/handler.zip
+
+tasks:
+  install:
+    desc: Install dependencies (node modules)
+    cmds:
+      - npm install
+
+  update-dependencies:
+    desc: Update dependencies (node modules)
+    cmds:
+      - npm update && npm upgrade
+
+  test:
+    desc: Run unit tests using jest
+    cmds:
+      - npm run test
+
+  compile:
+    desc: Compile typescript files
+    cmds:
+      - tsc
+
+  clean:
+    desc: Clean artifacts and dependencies
+    cmds:
+      - rm -rf dist/
+      - rm -rf {{.FUNCTION_ARTIFACT}}
+      - rm -rf out/
+
+  package:
+    desc: Package and zip the application code for deployment
+    cmds:
+      - task: clean
+      - task: install
+      - task: compile
+      - rm -rf node_modules && npm install --omit=dev
+      - mkdir -p nodejs && cp -R node_modules nodejs
+
+  deploy-oidc-cloudformation-stack:
+    desc: Deploy OIDC CloudFormation stack
+    cmds:
+      - |
+        aws cloudformation deploy \
+          --stack-name xplorers-oidc \
+          --template-file cloudformation/oidc.yaml \
+          --capabilities CAPABILITY_NAMED_IAM
+
+  create-secrets:
+    desc: Create required secrets in AWS Secrets Manager
+    summary: |
+      Create secrets in AWS Secrets Manager to store the slack token, azure openai endpoint and key
+
+      Don't forget to set SLACK_OAUTH_TOKEN, AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY env vars
+      before running this command.
+
+      If you only want to test the slack feature, only supplying the SLACK_OAUTH_TOKEN is enough.
+    cmds:
+      - |
+        SLACK_SECRET_NAME=slack-oauth-token-${TF_WORKSPACE}
+        SLACK_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${SLACK_SECRET_NAME} --query SecretString --output text 2>/dev/null)
+
+        if [ -z "${SLACK_SECRET_VALUE}" ]; then
+          aws secretsmanager create-secret --name ${SLACK_SECRET_NAME} --secret-string=${SLACK_OAUTH_TOKEN} --description="Slack OAuth Token"
+        else
+          aws secretsmanager update-secret --secret-id ${SLACK_SECRET_NAME} --secret-string=${SLACK_OAUTH_TOKEN}
+        fi
+
+      - |
+        AZURE_SECRET_NAME=azure-openai-endpoint-${TF_WORKSPACE}
+        AZURE_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${AZURE_SECRET_NAME} --query SecretString --output text 2>/dev/null)
+
+        if [ -z "${AZURE_SECRET_VALUE}" ]; then
+          aws secretsmanager create-secret --name ${AZURE_SECRET_NAME} --secret-string=${AZURE_OPENAI_ENDPOINT} --description="Azure OpenAI Endpoint"
+        else
+          aws secretsmanager update-secret --secret-id ${AZURE_SECRET_NAME} --secret-string=${AZURE_OPENAI_ENDPOINT}
+        fi
+
+      - |
+        OPENAI_SECRET_NAME=azure-openai-key-${TF_WORKSPACE}
+        OPENAI_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${OPENAI_SECRET_NAME} --query SecretString --output text 2>/dev/null)
+
+        if [ -z "${OPENAI_SECRET_VALUE}" ]; then
+          aws secretsmanager create-secret --name ${OPENAI_SECRET_NAME} --secret-string=${AZURE_OPENAI_KEY} --description="Azure OpenAI Key"
+        else
+          aws secretsmanager update-secret --secret-id ${OPENAI_SECRET_NAME} --secret-string=${AZURE_OPENAI_KEY}
+        fi
+
+  terraform-fmt:
+    desc: Format terraform files
+    cmds:
+      - |
+        terraform -chdir=terraform fmt
+
+  terraform-init:
+    desc: Initialize terraform backend, providers, plugins and modules
+    cmds:
+      - |
+        terraform -chdir=terraform init \
+        -backend-config="bucket=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -backend-config="key=${XPLORERS_ARTIFACTS_BUCKET_TERRAFORM_PREFIX}" \
+        -backend-config="region=${AWS_DEFAULT_REGION}"
+
+  terraform-plan:
+    desc: Creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.
+    cmds:
+      - task: terraform-init
+      - task: package
+      - |
+        terraform -chdir=terraform plan \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
+
+  terraform-apply:
+    desc: Apply the planned changes to the target infrastructure
+    cmds:
+      - defer: { task: clean }
+      - task: package
+      - task: terraform-plan
+      - |
+        terraform -chdir=terraform apply -auto-approve \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
+
+  terraform-destroy:
+    desc: Delete all resources created by terraform
+    cmds:
+      - |
+        terraform -chdir=terraform destroy -auto-approve \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
