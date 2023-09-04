@@ -190,7 +190,7 @@ resource "aws_lambda_permission" "xplorers-api-gateway-invoke-xplorersbot-lambda
 }
 
 resource "aws_cloudwatch_event_rule" "xplorers-route-slack-events" {
-  name          = "xplorers-route-slack-events-${terraform.workspace}"
+  name           = "xplorers-route-slack-events-${terraform.workspace}"
   description    = "Rule to trigger Lambda function"
   event_bus_name = "default" # Use the default event bus
 
