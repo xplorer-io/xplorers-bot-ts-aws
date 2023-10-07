@@ -36,7 +36,7 @@ tasks:
 
   package:
     desc: Package and zip the application code for deployment
-    deps: [clean, install, compile]
+    deps: [clean, compile]
     cmds:
       - rm -rf node_modules && npm install --omit=dev
       - mkdir -p nodejs && cp -R node_modules nodejs
@@ -101,7 +101,7 @@ tasks:
   terraform-apply:
     dir: terraform
     desc: Apply the planned changes to the target infrastructure
-    deps: [package, terraform-plan]
+    deps: [terraform-plan]
     cmds:
       - defer: { task: clean }
       - |
