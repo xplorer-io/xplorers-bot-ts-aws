@@ -36,8 +36,9 @@ tasks:
 
   package:
     desc: Package and zip the application code for deployment
-    deps: [clean, compile]
+    deps: [clean]
     cmds:
+      - defer: { task: compile }
       - rm -rf node_modules && npm install --omit=dev
       - mkdir -p nodejs && cp -R node_modules nodejs
 
