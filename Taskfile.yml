@@ -38,7 +38,7 @@ tasks:
     desc: Package and zip the application code for deployment
     deps: [clean, install, compile]
     cmds:
-      - rm -rf node_modules && npm install
+      - rm -rf node_modules && npm install --omit=dev
       - mkdir -p nodejs && cp -R node_modules nodejs
 
   deploy-oidc-cloudformation-stack:
