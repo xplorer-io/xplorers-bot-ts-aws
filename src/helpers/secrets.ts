@@ -5,22 +5,15 @@ export async function fetchSecretFromSSMParameterStore(
 ): Promise<string> {
     const ssm = new SSM();
 
-    try {
-        const params = {
-            Name: path,
-            WithDecryption: true, // Retrieve the parameter with decryption
-        };
+    const params = {
+        Name: path,
+        WithDecryption: true, // Retrieve the parameter with decryption
+    };
 
-        const response = await ssm.getParameter(params).promise();
-        if (!response || !response.Parameter || !response.Parameter.Value) {
-            throw new Error("Parameter not found or empty");
-        }
-
-        return response.Parameter.Value;
-    } catch (error) {
-        throw error;
+    const response = await ssm.getParameter(params).promise();
+    if (!response?.Parameter?.Value) {
+        throw new Error("Parameter not found or empty");
     }
+
+    return response.Parameter.Value;
 }
-
-
-fetchSecretFromSSMParameterStore("/azure/openai/endpoint/prod")
