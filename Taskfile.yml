@@ -38,7 +38,7 @@ tasks:
     desc: Package and zip the application code for deployment
     deps: [clean, install, compile]
     cmds:
-      - rm -rf node_modules && npm install --omit=dev
+      - rm -rf node_modules && npm install
       - mkdir -p nodejs && cp -R node_modules nodejs
 
   deploy-oidc-cloudformation-stack:
@@ -51,9 +51,9 @@ tasks:
           --capabilities CAPABILITY_NAMED_IAM
 
   create-secrets:
-    desc: Create required secrets in AWS Systems Managet Parameter Store
+    desc: Create required secrets in AWS Systems Manager Parameter Store
     summary: |
-      Create secrets in AWS Systems Managet Parameter Store to store the slack token, azure openai endpoint and key
+      Create secrets in AWS Systems Manager Parameter Store to store the slack token, azure openai endpoint and key
 
       Don't forget to set SLACK_OAUTH_TOKEN, AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY env vars
       before running this command.
