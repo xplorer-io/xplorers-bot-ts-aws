@@ -51,9 +51,9 @@ tasks:
           --capabilities CAPABILITY_NAMED_IAM
 
   create-secrets:
-    desc: Create required secrets in AWS Secrets Manager
+    desc: Create required secrets in AWS Systems Managet Parameter Store
     summary: |
-      Create secrets in AWS Secrets Manager to store the slack token, azure openai endpoint and key
+      Create secrets in AWS Systems Managet Parameter Store to store the slack token, azure openai endpoint and key
 
       Don't forget to set SLACK_OAUTH_TOKEN, AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY env vars
       before running this command.
@@ -62,13 +62,13 @@ tasks:
     cmds:
       - ignore_error: true
         cmd: |
-          SLACK_SECRET_NAME=slack-oauth-token-${TF_WORKSPACE}
-          AZURE_SECRET_NAME=azure-openai-endpoint-${TF_WORKSPACE}
-          OPENAI_SECRET_NAME=azure-openai-key-${TF_WORKSPACE}
+          SLACK_SECRET_NAME=/slack/oauth/token/${TF_WORKSPACE}
+          AZURE_ENDPOINT=/azure/openai/endpoint/${TF_WORKSPACE}
+          AZURE_API_KEY=/azure/openai/key/${TF_WORKSPACE}
 
-          aws secretsmanager create-secret --name ${SLACK_SECRET_NAME} --secret-string=${SLACK_OAUTH_TOKEN} --description="Slack OAuth Token"
-          aws secretsmanager create-secret --name ${AZURE_SECRET_NAME} --secret-string=${AZURE_OPENAI_ENDPOINT} --description="Azure OpenAI Endpoint"
-          aws secretsmanager create-secret --name ${OPENAI_SECRET_NAME} --secret-string=${AZURE_OPENAI_KEY} --description="Azure OpenAI Key"
+          aws ssm put-parameter --name ${SLACK_SECRET_NAME} --value ${SLACK_OAUTH_TOKEN} --type SecureString --overwrite
+          aws ssm put-parameter --name ${AZURE_ENDPOINT} --value ${AZURE_OPENAI_ENDPOINT} --type SecureString --overwrite
+          aws ssm put-parameter --name ${AZURE_API_KEY} --value ${AZURE_OPENAI_KEY} --type SecureString --overwrite
 
   terraform-fmt:
     dir: terraform

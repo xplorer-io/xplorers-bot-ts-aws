@@ -1,4 +1,4 @@
-import { readSecretFromSecretsManager } from "./secrets";
+import { fetchSecretFromSSMParameterStore } from "./secrets";
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
 let messages = [
@@ -11,13 +11,13 @@ let messages = [
 export async function askOpenAI(message: string) {
     const azureOpenAIEndpoint =
         process.env.AZURE_OPENAI_ENDPOINT ||
-        (await readSecretFromSecretsManager(
-            `azure-openai-endpoint-${process.env.TF_WORKSPACE}`
+        (await fetchSecretFromSSMParameterStore(
+            `/azure/openai/endpoint/${process.env.TF_WORKSPACE}`
         ));
     const azureApiKey =
         process.env.AZURE_OPENAI_KEY ||
-        (await readSecretFromSecretsManager(
-            `azure-openai-key-${process.env.TF_WORKSPACE}`
+        (await fetchSecretFromSSMParameterStore(
+            `/azure/openai/key/${process.env.TF_WORKSPACE}`
         ));
 
     if (!azureOpenAIEndpoint || !azureApiKey) {
