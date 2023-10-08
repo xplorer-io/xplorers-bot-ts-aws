@@ -146,20 +146,19 @@ resource "aws_iam_role" "xplorers-BotFunctionRole" {
   })
 
   inline_policy {
-    name = "xplorers-fetch-secrets-from-secrets-manager-policy"
-    # This policy grants the Lambda function permission to fetch secrets from AWS Secrets Manager
+    name = "xplorers-fetch-secrets-from-ssm-systems-manager-policy"
     policy = jsonencode({
       Version = "2012-10-17",
       Statement = [
         {
           Action = [
-            "secretsmanager:GetSecretValue"
+            "ssm:GetParameter"
           ],
           Effect = "Allow",
           Resource = [
-            "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:azure-openai-key-${terraform.workspace}*",
-            "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:azure-openai-endpoint-${terraform.workspace}*",
-            "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:slack-oauth-token-${terraform.workspace}*"
+            "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/azure/openai/endpoint/*",
+            "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/azure/openai/key/*",
+            "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/slack/oauth/token/*",
           ]
         }
       ]

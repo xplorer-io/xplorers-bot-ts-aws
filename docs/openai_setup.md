@@ -5,10 +5,10 @@
 ### Prerequisites
 
 For the corresponding terraform workspace (set via environment vairable TF_WORKSPACE), see [Create Slack and OpenAI secrets in AWS Secrets Manager
-](feature_branch_deployment#Create-Slack-and-OpenAI-secrets-in-AWS-Secrets-Manager) to create the following secrets in AWS for the OpenAI function to fetch and interact with Azure OpenAI,
+](feature_branch_deployment#Create-Slack-and-OpenAI-secrets-in-AWS-Secrets-Manager) to create the following SSM Parameters in AWS Systems Manager for the OpenAI function to fetch and interact with Azure OpenAI,
 
-* azure-openai-endpoint-{TF_WORKSPACE}
-* azure-openai-key-{TF_WORKSPACE}
+* /azure/openai/endpoint/{TF_WORKSPACE}
+* /azure/openai/key/{TF_WORKSPACE}
 
 where {TF_WORKSPACE} will be replaced by the current terraform workspace in use.
 

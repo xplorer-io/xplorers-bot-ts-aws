@@ -1,22 +1,19 @@
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import { SSM } from "aws-sdk";
 
-// read secret from secrets manager aws
-export async function readSecretFromSecretsManager(
-    secretName: string
-): Promise<string | undefined> {
-    try {
-        const secretsManagerClient = new SecretsManagerClient()
-        const data = await secretsManagerClient.send(
-            new GetSecretValueCommand({
-              SecretId: secretName,
-            })
-          );
+export async function fetchSecretFromSSMParameterStore(
+    path: string
+): Promise<string> {
+    const ssm = new SSM();
 
-        return data.SecretString
-    } catch (err) {
-        console.error(
-            `Failed to read secret from secrets manager ${secretName}: ${err}`
-        );
-        return undefined;
+    const params = {
+        Name: path,
+        WithDecryption: true, // Retrieve the parameter with decryption
+    };
+
+    const response = await ssm.getParameter(params).promise();
+    if (!response?.Parameter?.Value) {
+        throw new Error("Parameter not found or empty");
     }
+
+    return response.Parameter.Value;
 }

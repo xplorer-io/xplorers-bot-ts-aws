@@ -3,7 +3,7 @@ import { SlackWebClient } from "./helpers/types";
 import { handleSlackMessageEvent } from "./slack/slackEventHandler";
 import { postMessageToSlack } from "./slack/slackInteraction";
 import { askOpenAI } from "./helpers/openai";
-import { readSecretFromSecretsManager } from "./helpers/secrets";
+import { fetchSecretFromSSMParameterStore } from "./helpers/secrets";
 import { putEbEvents } from "./helpers/events";
 const { WebClient } = require("@slack/web-api");
 
@@ -43,8 +43,8 @@ exports.xplorersbot = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
     const slackWebClient: SlackWebClient = new WebClient(
         process.env.SLACK_OAUTH_TOKEN ||
-            (await readSecretFromSecretsManager(
-                `slack-oauth-token-${process.env.TF_WORKSPACE}`
+            (await fetchSecretFromSSMParameterStore(
+                `/slack/oauth/token/${process.env.TF_WORKSPACE}`
             ))
     );
 
