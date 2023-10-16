@@ -1,0 +1,230 @@
+{
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Hello 👋\n\n Xplorers isn't just a fun slack workspace, but a knowledge sharing world where weekly activities awaits you, from book club gatherings to engaging tech talks. Here's a quick list to kickstart your journey if you haven't already,"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:one: Xplorers :youtube: Playlist*\n\n Visit youtube playlist for Xplorers to see previous knowledge sharing videos. Let us know if you are keen to share knowledge on any topic you desire as well."
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Playlist",
+                    "emoji": true
+                },
+                "url": "https://www.youtube.com/playlist?list=PLgy1IXj6GNkDBEKHejaR4Gecv9K2Cew9e",
+                "action_id": "xplorers-youtube-playlist-button"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:two: Xplorers Tech Talk :nerd_face: *\n\n Visit slack channel #tech-talk for ongoing knowledge sharing sessions where members share their knowledge and insights!"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Tech Talk",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C04D1A9FYVA",
+                "action_id": "xplorers-tech-talk-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:three: Xplorers OpenAI :azure: *\n\n Visit slack channel #ask-openai to interact with OpenAI GPT-4 right from Slack!"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "OpenAI",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C05G6U88QMC",
+                "action_id": "xplorers-tech-talk-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:four: Xplorers :book: Club*\n\n Explore various books and chapters, not limited to technical subjects, but always with the goal of enhancing our skills as engineers and professionals together with Xplorers :raised_hands:"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Book Club",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C04D1A9FYVA",
+                "action_id": "xplorers-book-club-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:five: Xplorers :github: Organization [NEEDS APPROVAL]*\n\n Visit Xplorers Github Organization to view and contribute to projects like XplorersBot"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Github Org",
+                    "emoji": true
+                },
+                "url": "https://github.com/xplorer-io",
+                "action_id": "xplorers-github-organization-button"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:six: Xplorers Monthly Catchup :handshake: *\n\n The monthly catch-up is for Xplorers to have a genuine connection with one another in both personal and professional levels. Its an open platform for each and every one of us to be creative, to share ideas and to help each other grow.\n\n Would you like to share a new technology you have been playing around with? Do you have questions on skills you have been trying to develop? Do you want to build your network by getting to know Xplorers? Do you want to talk about life, adventures and travel?"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:seven: Xplorers Accolades :bow: *\n\n Have you ever wanted to express your gratitude to your fellow Xplorers, but you didn't know how?\n\n We're asking everyone to take a moment to write a few words of thanks to a fellow Xplorer who has gone above and beyond to make a difference in your life.\n\n These accolades will be read out during our monthly catchups, so stay tuned!\n\n You can choose to remain anonymous, but if you would like us to know your name, please include it in your accolade."
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Write an Accolade",
+                    "emoji": true
+                },
+                "url": "https://forms.office.com/r/JCmGSrw5XK",
+                "action_id": "xplorers-accolades-excel-form"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:eight: Podcasts :microphone: *\n\n See what podcasts Xplorers are listening to, and share some of your favourite ones"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Podcasts",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C05S47T2Q48",
+                "action_id": "xplorers-podcasts-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:nine: :question:Ask Us Anything:question: *\n\n Your go-to destination for questions, queries, and curiosity of all kinds. Whether you're pondering a tech conundrum, seeking life advice, or simply looking to spark a conversation, this channel is your open forum for all things. Ask away, because here, no question is off-limits!"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Podcasts",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C05S47T2Q48",
+                "action_id": "xplorers-podcasts-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:keycap_ten: Job Referrals :computer: *\n\n Are you interested in job opportunities? Whether you're seeking employment or looking to hire talented individuals, this channel is for both job seekers and potential employers eager to collaborate with Xplorers."
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Job Referrals",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C0196B81SPL",
+                "action_id": "xplorers-job-referrals-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*:11: Rants :relieved: *\n\n Need a place to rant about life, work or maybe a scammer who tried to send you a phishing email? You can rant about anything in the slack channel #rants, the only rule is to WRITE EVERYTHING IN CAPS"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Rants",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C05H6EM1CF3",
+                "action_id": "xplorers-rants-slack-channel"
+            }
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*_Xplorers is a collaborative space for tech enthusiasts to learn, share, and grow together. Our group is open, inclusive, and free of judgment or bias. Feel free to ask questions, collaborate on projects, share your knowledge, and join us in our mission to spread knowledge freely!_*"
+                }
+            ]
+        }
+    ]
+}

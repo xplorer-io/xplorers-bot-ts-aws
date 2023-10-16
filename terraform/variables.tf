@@ -53,6 +53,11 @@ variable "xplorers_openai_slack_channel_id" {
   description = "Slack channel id for the xplorers openai slack channel"
 }
 
+variable "xplorers_general_slack_channel_id" {
+  type        = string
+  description = "Slack channel id for the xplorers general slack channel"
+}
+
 variable "azure_openai_deployment_id" {
   type        = string
   description = "Deployment id for the azure openai deployment"

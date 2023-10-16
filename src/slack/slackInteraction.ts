@@ -1,7 +1,13 @@
-import { ChatPostMessageArguments, ErrorCode } from "@slack/web-api";
+import {
+    Block,
+    ChatPostMessageArguments,
+    ChatPostMessageResponse,
+    ErrorCode,
+} from "@slack/web-api";
 import { SlackWebClient } from "../helpers/types";
 import { getEmojisToReactWith } from "../emojis/emojiHandler";
 import SLACK_MESSAGE_BLOCKS from "../helpers/files/welcomeMessageBlocks.json";
+import GETTING_STARTED_WITH_SLACK_NOTES from "../helpers/files/gettingStartedWithSlack.json";
 import { getRandomValue } from "../utils/getRandomValue";
 
 export async function addReactionToSlackPost(
@@ -34,15 +40,18 @@ export async function getCurrentEmojisOnSlackPost(
     timestamp: string
 ): Promise<string[]> {
     try {
-        console.log(`Getting reactions for message with timestamp ${timestamp} in channel ${channel}.$$$$$$$$$$$$`)
+        console.log(
+            `Getting reactions for message with timestamp ${timestamp} in channel ${channel}`
+        );
         const reactions = await slackWebClient.reactions.get({
             channel,
             timestamp,
         });
 
-        console.log(`Reactions: ${JSON.stringify(reactions)}`)
-
         const messageReactions = reactions?.message?.reactions;
+
+        console.log(`Reactions found in the slack post: ${messageReactions}`);
+
         if (!messageReactions) {
             console.log(
                 `No reactions found for message with timestamp ${timestamp} in channel ${channel}.`
@@ -73,7 +82,9 @@ export async function reactToSlackPost(
         return;
     }
 
-    console.log(`Getting current emojis on slack post with timestamp ${timestamp} in channel ${slackChannel}.`)
+    console.log(
+        `Getting current emojis on slack post with timestamp ${timestamp} in channel ${slackChannel}.`
+    );
     const currentEmojisOnSlackPost: Array<string> =
         await getCurrentEmojisOnSlackPost(
             slackWebClient,
@@ -103,15 +114,13 @@ export async function reactToSlackPost(
     }
 }
 
-export async function postMessageToSlack(
-    slackWebClient: SlackWebClient,
-    text: string,
-    slackChannel: string,
-    threadTs?: string
-) {
+export async function postMessageToSlackChannel(options: Record<string, any>) {
+    const { slackWebClient, slackChannel, threadTs, blocks, text } = options;
+
     let chatPostMessageArguments: ChatPostMessageArguments = {
         text: text,
         channel: slackChannel,
+        blocks: blocks,
     };
 
     if (threadTs) {
@@ -133,5 +142,32 @@ export async function handleSlackJoinEvent(
         .split("@userId")
         .join("@" + userId);
 
-    await postMessageToSlack(slackWebClient, welcomeMessageText, slackChannel);
+    await postMessageToSlackChannel({
+        slackWebClient: slackWebClient,
+        slackChannel: slackChannel,
+        text: welcomeMessageText,
+    });
+    await postMessageToSlackUser(
+        slackWebClient,
+        userId,
+        GETTING_STARTED_WITH_SLACK_NOTES.blocks
+    );
+}
+
+export async function postMessageToSlackUser(
+    slackWebClient: SlackWebClient,
+    userId: string,
+    blocks: Block[],
+    text: string = "fallback text for slack notification"
+): Promise<ChatPostMessageResponse> {
+    const conversation = await slackWebClient.conversations.open({
+        users: userId,
+    });
+
+    // Send the message with blocks
+    return await slackWebClient.chat.postMessage({
+        text: text,
+        channel: conversation.channel!.id!,
+        blocks: blocks,
+    });
 }

@@ -95,6 +95,7 @@ tasks:
     cmds:
       - |
         terraform plan \
+        -var "xplorers_general_slack_channel_id=${XPLORERS_GENERAL_SLACK_CHANNEL_ID}" \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
@@ -107,6 +108,7 @@ tasks:
       - defer: { task: clean }
       - |
         terraform apply -auto-approve \
+        -var "xplorers_general_slack_channel_id=${XPLORERS_GENERAL_SLACK_CHANNEL_ID}" \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
@@ -117,6 +119,7 @@ tasks:
     cmds:
       - |
         terraform destroy -auto-approve \
+        -var "xplorers_general_slack_channel_id=${XPLORERS_GENERAL_SLACK_CHANNEL_ID}" \
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"

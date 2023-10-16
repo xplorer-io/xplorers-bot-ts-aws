@@ -64,6 +64,30 @@ resource "aws_lambda_function" "xplorers-bot" {
   }
 }
 
+resource "aws_lambda_function" "xplorers-monthly-lambda" {
+  description      = "Xplorers monthly lambda function that sends notes to general slack channel"
+  function_name    = "xplorers-monthly-lambda-${terraform.workspace}"
+  handler          = "index.xplorersMonthlyLambda"
+  filename         = data.archive_file.xplorers_artifact.output_path
+  runtime          = var.function_runtime
+  role             = aws_iam_role.xplorers-BotFunctionRole.arn
+  source_code_hash = data.archive_file.xplorers_artifact.output_base64sha256
+  layers           = [aws_lambda_layer_version.xplorers-lambda-layer.arn]
+  architectures    = var.function_architecture
+  timeout          = var.function_timeout_in_seconds
+  tracing_config {
+    mode = "Active"
+  }
+  environment {
+    variables = {
+      XPLORERS_GENERAL_SLACK_CHANNEL_ID = var.xplorers_general_slack_channel_id
+      TF_WORKSPACE = terraform.workspace
+      NODE_PATH    = var.lambda_node_path
+    }
+  }
+}
+
+
 # upload zip file to s3
 resource "aws_s3_object" "lambda_layer_zip" {
   bucket = var.xplorers_artifacts_bucket_name
@@ -87,6 +111,11 @@ resource "aws_cloudwatch_log_group" "xplorers-bot-log-group" {
 
 resource "aws_cloudwatch_log_group" "xplorers-event-router-log-group" {
   name              = "/aws/lambda/${aws_lambda_function.xplorers-event-router.function_name}"
+  retention_in_days = var.lambda_log_group_retention_in_days
+}
+
+resource "aws_cloudwatch_log_group" "xplorers-monthly-lambda-log-group" {
+  name              = "/aws/lambda/${aws_lambda_function.xplorers-monthly-lambda.function_name}"
   retention_in_days = var.lambda_log_group_retention_in_days
 }
 
@@ -239,4 +268,26 @@ resource "aws_api_gateway_stage" "xplorers-api-gateway-stage" {
   deployment_id = aws_api_gateway_deployment.xplorers-api-gateway-deployment.id
   rest_api_id   = aws_api_gateway_rest_api.xplorers-api-gateway.id
   stage_name    = "dev"
+}
+
+resource "aws_cloudwatch_event_rule" "monthly_friday_lambda_trigger" {
+  name        = "MonthlyFridayLambdaTrigger"
+  description = "Trigger Lambda function every month on a Friday at 1 PM"
+
+  schedule_expression = "cron(0 2 ? * 6 *)"  # This schedules the rule to run on the last Friday of every month at 1 PM Sydney time
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_invoke_monthly_friday_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.xplorers-monthly-lambda.function_name
+  principal     = "events.amazonaws.com"
+
+  source_arn = aws_cloudwatch_event_rule.monthly_friday_lambda_trigger.arn
+}
+
+resource "aws_cloudwatch_event_target" "xplorers_monthly_friday_lambda_target" {
+  target_id = "MonthlyFridayLambdaTarget"
+  rule      = aws_cloudwatch_event_rule.monthly_friday_lambda_trigger.name
+  arn       = aws_lambda_function.xplorers-monthly-lambda.arn
 }

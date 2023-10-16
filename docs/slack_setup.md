@@ -10,6 +10,7 @@ The following scopes are required for bot user to interact with Slack,
 * chat:write - Send messages as bot user
 * reactions:read - View emoji reactions and their associated content in channels and conversations that bot user has been added to
 * reactions:write - Add and edit emoji reactions
+* im:write - Start direct messages with people
 
 Bot events to subscribe to,
 * message.channels - A message was posted to a channel

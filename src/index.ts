@@ -1,10 +1,11 @@
 import { SUCCESS_MESSAGE } from "./helpers/constants";
 import { SlackWebClient } from "./helpers/types";
 import { handleSlackMessageEvent } from "./slack/slackEventHandler";
-import { postMessageToSlack } from "./slack/slackInteraction";
+import { postMessageToSlackChannel } from "./slack/slackInteraction";
 import { askOpenAI } from "./helpers/openai";
 import { fetchSecretFromSSMParameterStore } from "./helpers/secrets";
 import { putEbEvents } from "./helpers/events";
+import GETTING_STARTED_WITH_SLACK_NOTES from "./helpers/files/gettingStartedWithSlack.json";
 const { WebClient } = require("@slack/web-api");
 
 exports.eventRouter = async function (event: Record<string, any>) {
@@ -51,8 +52,18 @@ exports.xplorersbot = async function (event: Record<string, any>) {
     switch (event.detail.type) {
         case "event_callback":
             const slackEvent = event.detail.event;
+            const isMessageDeletedEvent =
+                slackEvent?.subtype === "message_deleted";
+            const isMessageChangedDeletedEvent =
+                slackEvent?.message?.text !== undefined &&
+                slackEvent?.previous_message?.text !== undefined &&
+                slackEvent.message.text === slackEvent.previous_message.text;
 
-            if (slackEvent.bot_id) {
+            if (
+                slackEvent.bot_id ||
+                isMessageDeletedEvent ||
+                isMessageChangedDeletedEvent
+            ) {
                 break;
             }
 
@@ -76,12 +87,12 @@ exports.xplorersbot = async function (event: Record<string, any>) {
             if (isChannelOpenAI && messageStartsWithHeyOpenAI) {
                 const openAIResponse = await askOpenAI(message);
                 if (openAIResponse) {
-                    await postMessageToSlack(
-                        slackWebClient,
-                        openAIResponse,
-                        slackEvent?.channel,
-                        ts
-                    );
+                    await postMessageToSlackChannel({
+                        slackWebClient: slackWebClient,
+                        slackChannel: slackEvent?.channel,
+                        threadTs: ts,
+                        text: openAIResponse,
+                    });
                 }
                 break;
             }
@@ -89,4 +100,21 @@ exports.xplorersbot = async function (event: Record<string, any>) {
     }
 
     console.log(SUCCESS_MESSAGE);
+};
+
+exports.xplorersMonthlyLambda = async function (event: Record<string, any>) {
+    console.log("EVENT: %s", JSON.stringify(event, null, 2));
+
+    const slackWebClient: SlackWebClient = new WebClient(
+        process.env.SLACK_OAUTH_TOKEN ||
+            (await fetchSecretFromSSMParameterStore(
+                `/slack/oauth/token/${process.env.TF_WORKSPACE}`
+            ))
+    );
+
+    postMessageToSlackChannel({
+        slackWebClient: slackWebClient,
+        slackChannel: process.env.XPLORERS_GENERAL_SLACK_CHANNEL_ID!,
+        blocks: GETTING_STARTED_WITH_SLACK_NOTES.blocks,
+    });
 };
