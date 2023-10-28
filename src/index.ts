@@ -3,10 +3,9 @@ import { SlackWebClient } from "./helpers/types";
 import { handleSlackMessageEvent } from "./slack/slackEventHandler";
 import { postMessageToSlackChannel } from "./slack/slackInteraction";
 import { askOpenAI } from "./helpers/openai";
-import { fetchSecretFromSSMParameterStore } from "./helpers/secrets";
 import { putEbEvents } from "./helpers/events";
 import GETTING_STARTED_WITH_SLACK_NOTES from "./helpers/files/gettingStartedWithSlack.json";
-const { WebClient } = require("@slack/web-api");
+import { createSlackClient } from "./slack/slackClient";
 
 exports.eventRouter = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
@@ -40,32 +39,25 @@ exports.eventRouter = async function (event: Record<string, any>) {
     };
 };
 
+// Check if event is a message delete or update event
+const isIgnoreEvent = (event: Record<string, any>) => {
+    return (
+        event.bot_id ||
+        event?.subtype === "message_deleted" ||
+        (event?.message?.text !== undefined &&
+            event?.previous_message?.text !== undefined &&
+            event.message.text === event.previous_message.text)
+    );
+};
+
 exports.xplorersbot = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
-    const slackWebClient: SlackWebClient = new WebClient(
-        process.env.SLACK_OAUTH_TOKEN ||
-            (await fetchSecretFromSSMParameterStore(
-                `/slack/oauth/token/${process.env.TF_WORKSPACE}`
-            ))
-    );
+    const slackWebClient = await createSlackClient();
 
     switch (event.detail.type) {
         case "event_callback":
             const slackEvent = event.detail.event;
-            const isMessageDeletedEvent =
-                slackEvent?.subtype === "message_deleted";
-            const isMessageChangedDeletedEvent =
-                slackEvent?.message?.text !== undefined &&
-                slackEvent?.previous_message?.text !== undefined &&
-                slackEvent.message.text === slackEvent.previous_message.text;
-
-            if (
-                slackEvent.bot_id ||
-                isMessageDeletedEvent ||
-                isMessageChangedDeletedEvent
-            ) {
-                break;
-            }
+            if (isIgnoreEvent(slackEvent)) return;
 
             const isChannelOpenAI =
                 slackEvent?.channel ===
@@ -105,12 +97,7 @@ exports.xplorersbot = async function (event: Record<string, any>) {
 exports.xplorersMonthlyLambda = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
 
-    const slackWebClient: SlackWebClient = new WebClient(
-        process.env.SLACK_OAUTH_TOKEN ||
-            (await fetchSecretFromSSMParameterStore(
-                `/slack/oauth/token/${process.env.TF_WORKSPACE}`
-            ))
-    );
+    const slackWebClient: SlackWebClient = await createSlackClient();
 
     postMessageToSlackChannel({
         slackWebClient: slackWebClient,
