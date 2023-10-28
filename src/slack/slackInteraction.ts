@@ -114,9 +114,16 @@ export async function reactToSlackPost(
     }
 }
 
-export async function postMessageToSlackChannel(options: Record<string, any>) {
-    const { slackWebClient, slackChannel, threadTs, blocks, text } = options;
+type SlackChannelMessage = {
+    slackWebClient: SlackWebClient;
+    slackChannel: string;
+    threadTs?: string;
+    blocks?: Block[];
+    text?: string;
+}
 
+export async function postMessageToSlackChannel({ slackWebClient, slackChannel, threadTs, blocks, text
+}: SlackChannelMessage) {
     let chatPostMessageArguments: ChatPostMessageArguments = {
         text: text,
         channel: slackChannel,
