@@ -271,7 +271,7 @@ resource "aws_api_gateway_stage" "xplorers-api-gateway-stage" {
 }
 
 resource "aws_cloudwatch_event_rule" "monthly_friday_lambda_trigger" {
-  name        = "MonthlyFridayLambdaTrigger"
+  name        = "xplorers-MonthlyFridayLambdaTrigger"
   description = "Trigger Lambda function every month on a Friday at 1 PM"
 
   schedule_expression = "cron(0 2 ? * 6 *)"  # This schedules the rule to run on the last Friday of every month at 1 PM Sydney time
@@ -287,7 +287,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_invoke_monthly_friday_lamb
 }
 
 resource "aws_cloudwatch_event_target" "xplorers_monthly_friday_lambda_target" {
-  target_id = "MonthlyFridayLambdaTarget"
+  target_id = "xplorers-MonthlyFridayLambdaTarget"
   rule      = aws_cloudwatch_event_rule.monthly_friday_lambda_trigger.name
   arn       = aws_lambda_function.xplorers-monthly-lambda.arn
 }
