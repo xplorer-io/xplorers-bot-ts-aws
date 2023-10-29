@@ -48,6 +48,7 @@ const channelJoinEvent = {
     ts: "1682383793.955729",
 };
 
+const mockConversationOpen = jest.fn(async () => ({ channel: { id: '123' } }));
 const slackWebClient = {
     reactions: {
         get: jest.fn(),
@@ -56,6 +57,9 @@ const slackWebClient = {
     chat: {
         postMessage: jest.fn(async () => ({ ts: "123" })),
     },
+    conversations: {
+        open: mockConversationOpen,
+    }
 } as unknown as SlackWebClient;
 
 describe("handleSlackMessageEvent", () => {

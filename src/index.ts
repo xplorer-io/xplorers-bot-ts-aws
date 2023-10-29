@@ -1,11 +1,11 @@
 import { SUCCESS_MESSAGE } from "./helpers/constants";
 import { SlackWebClient } from "./helpers/types";
 import { handleSlackMessageEvent } from "./slack/slackEventHandler";
-import { postMessageToSlack } from "./slack/slackInteraction";
+import { postMessageToSlackChannel } from "./slack/slackInteraction";
 import { askOpenAI } from "./helpers/openai";
-import { fetchSecretFromSSMParameterStore } from "./helpers/secrets";
 import { putEbEvents } from "./helpers/events";
-const { WebClient } = require("@slack/web-api");
+import GETTING_STARTED_WITH_SLACK_NOTES from "./helpers/files/gettingStartedWithSlack.json";
+import { createSlackClient } from "./slack/slackClient";
 
 exports.eventRouter = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
@@ -39,22 +39,25 @@ exports.eventRouter = async function (event: Record<string, any>) {
     };
 };
 
+// Check if event is a message delete or update event
+const isIgnoreEvent = (event: Record<string, any>) => {
+    return (
+        event.bot_id ||
+        event?.subtype === "message_deleted" ||
+        (event?.message?.text !== undefined &&
+            event?.previous_message?.text !== undefined &&
+            event.message.text === event.previous_message.text)
+    );
+};
+
 exports.xplorersbot = async function (event: Record<string, any>) {
     console.log("EVENT: %s", JSON.stringify(event, null, 2));
-    const slackWebClient: SlackWebClient = new WebClient(
-        process.env.SLACK_OAUTH_TOKEN ||
-            (await fetchSecretFromSSMParameterStore(
-                `/slack/oauth/token/${process.env.TF_WORKSPACE}`
-            ))
-    );
+    const slackWebClient = await createSlackClient();
 
     switch (event.detail.type) {
         case "event_callback":
             const slackEvent = event.detail.event;
-
-            if (slackEvent.bot_id) {
-                break;
-            }
+            if (isIgnoreEvent(slackEvent)) return;
 
             const isChannelOpenAI =
                 slackEvent?.channel ===
@@ -76,12 +79,12 @@ exports.xplorersbot = async function (event: Record<string, any>) {
             if (isChannelOpenAI && messageStartsWithHeyOpenAI) {
                 const openAIResponse = await askOpenAI(message);
                 if (openAIResponse) {
-                    await postMessageToSlack(
-                        slackWebClient,
-                        openAIResponse,
-                        slackEvent?.channel,
-                        ts
-                    );
+                    await postMessageToSlackChannel({
+                        slackWebClient: slackWebClient,
+                        slackChannel: slackEvent?.channel,
+                        threadTs: ts,
+                        text: openAIResponse,
+                    });
                 }
                 break;
             }
@@ -89,4 +92,16 @@ exports.xplorersbot = async function (event: Record<string, any>) {
     }
 
     console.log(SUCCESS_MESSAGE);
+};
+
+exports.xplorersMonthlyLambda = async function (event: Record<string, any>) {
+    console.log("EVENT: %s", JSON.stringify(event, null, 2));
+
+    const slackWebClient: SlackWebClient = await createSlackClient();
+
+    postMessageToSlackChannel({
+        slackWebClient: slackWebClient,
+        slackChannel: process.env.XPLORERS_GENERAL_SLACK_CHANNEL_ID!,
+        blocks: GETTING_STARTED_WITH_SLACK_NOTES.blocks,
+    });
 };
