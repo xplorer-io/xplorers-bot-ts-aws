@@ -123,3 +123,10 @@ tasks:
         -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
         -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
+
+  terraform-upgrade-providers:
+    dir: terraform
+    desc: Upgrade terraform providers
+    cmds:
+      - |
+        terraform init -upgrade
