@@ -167,11 +167,11 @@
                 "type": "button",
                 "text": {
                     "type": "plain_text",
-                    "text": "Podcasts",
+                    "text": "Ask Us Anything",
                     "emoji": true
                 },
                 "url": "https://xplorers-io.slack.com/archives/C05S47T2Q48",
-                "action_id": "xplorers-podcasts-slack-channel"
+                "action_id": "xplorers-ask-us-anything-slack-channel"
             }
         },
         {

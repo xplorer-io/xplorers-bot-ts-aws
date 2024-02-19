@@ -99,7 +99,7 @@ exports.xplorersMonthlyLambda = async function (event: Record<string, any>) {
 
     const slackWebClient: SlackWebClient = await createSlackClient();
 
-    postMessageToSlackChannel({
+    await postMessageToSlackChannel({
         slackWebClient: slackWebClient,
         slackChannel: process.env.XPLORERS_GENERAL_SLACK_CHANNEL_ID!,
         blocks: GETTING_STARTED_WITH_SLACK_NOTES.blocks,
