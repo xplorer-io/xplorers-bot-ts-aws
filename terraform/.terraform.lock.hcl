@@ -46,6 +46,6 @@ provider "registry.terraform.io/hashicorp/aws" {
 provider "registry.terraform.io/hashicorp/template" {
   version = "2.2.0"
   hashes = [
-    "h1:wQP7ofJuL/HY0oYLVm1EPVmas7TGeVkGIJBA0QLJxys=",
+    "h1:ondR3ZHaYapdpjmcz0Ux6a/bUBopeeUMtXM4cuMFYpQ=",
   ]
 }
