@@ -274,7 +274,7 @@ resource "aws_cloudwatch_event_rule" "monthly_friday_lambda_trigger" {
   name        = "xplorers-MonthlyFridayLambdaTrigger"
   description = "Trigger Lambda function every month on a Friday at 1 PM"
 
-  schedule_expression = "cron(0 2 ? * 6 *)"  # This schedules the rule to run on the last Friday of every month at 1 PM Sydney time
+  schedule_expression = "cron(0 3 ? * 6L *)"  # This schedules the rule to run on the last Friday of every month at 1 PM Sydney time
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_invoke_monthly_friday_lambda" {
