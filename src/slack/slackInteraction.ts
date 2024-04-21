@@ -154,6 +154,8 @@ export async function handleSlackJoinEvent(
         slackChannel: slackChannel,
         text: welcomeMessageText,
     });
+
+    // Send 'getting started with slack' notes to user
     await postMessageToSlackUser(
         slackWebClient,
         userId,

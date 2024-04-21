@@ -11,6 +11,26 @@
             "type": "section",
             "text": {
                 "type": "mrkdwn",
+                "text": ":handshake: Please take a minute to introduce yourself in #intros slack channel. We'd love to learn more about you! :handshake:"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Introduce Yourself",
+                    "emoji": true
+                },
+                "url": "https://xplorers-io.slack.com/archives/C06SWFJEVTQ",
+                "action_id": "xplorers-intros-channel"
+            }
+        },
+        {
+			"type": "divider"
+		},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
                 "text": "*:one: Xplorers :youtube: Playlist*\n\n Visit youtube playlist for Xplorers to see previous knowledge sharing videos. Let us know if you are keen to share knowledge on any topic you desire as well."
             },
             "accessory": {
@@ -80,7 +100,7 @@
                     "text": "Book Club",
                     "emoji": true
                 },
-                "url": "https://xplorers-io.slack.com/archives/C04D1A9FYVA",
+                "url": "https://xplorers-io.slack.com/archives/C047F18KKGX",
                 "action_id": "xplorers-book-club-slack-channel"
             }
         },
@@ -170,7 +190,7 @@
                     "text": "Ask Us Anything",
                     "emoji": true
                 },
-                "url": "https://xplorers-io.slack.com/archives/C05S47T2Q48",
+                "url": "https://xplorers-io.slack.com/archives/C05M4SJQCKU",
                 "action_id": "xplorers-ask-us-anything-slack-channel"
             }
         },
