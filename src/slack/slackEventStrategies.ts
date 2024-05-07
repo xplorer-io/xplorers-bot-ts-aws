@@ -17,7 +17,7 @@ export class ChannelJoinStrategy implements SlackEventStrategy {
         slackEvent: SlackChannelJoinEvent
     ) {
         const userId = slackEvent.user;
-        const slackChannel = slackEvent.channel;
+        const slackChannel = process.env.XPLORERS_INTROS_SLACK_CHANNEL_ID!;
         await handleSlackJoinEvent(slackWebClient, slackChannel, userId);
     }
 }

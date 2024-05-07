@@ -57,6 +57,7 @@ resource "aws_lambda_function" "xplorers-bot" {
   environment {
     variables = {
       XPLORERS_OPENAI_SLACK_CHANNEL_ID = var.xplorers_openai_slack_channel_id
+      XPLORERS_INTROS_SLACK_CHANNEL_ID = var.xplorers_intros_slack_channel_id
       TF_WORKSPACE                     = terraform.workspace
       NODE_PATH                        = var.lambda_node_path
       AZURE_OPENAI_DEPLOYMENT_ID       = var.azure_openai_deployment_id
