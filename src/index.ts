@@ -1,4 +1,4 @@
-import { SUCCESS_MESSAGE } from "./helpers/constants";
+import { EVENTS_TO_IGNORE, SUCCESS_MESSAGE } from "./helpers/constants";
 import { SlackWebClient } from "./helpers/types";
 import { handleSlackMessageEvent } from "./slack/slackEventHandler";
 import { postMessageToSlackChannel } from "./slack/slackInteraction";
@@ -66,6 +66,11 @@ exports.xplorersbot = async function (event: Record<string, any>) {
             // text could be in slackEvent.text or slackEvent.message.text
             const message = slackEvent?.text ?? slackEvent?.message?.text;
             const ts = slackEvent?.message?.ts ?? slackEvent?.ts;
+
+            if (!message && EVENTS_TO_IGNORE.includes(slackEvent?.type)) {
+                console.log(`Nothing to do for slack event type ${slackEvent?.type}`)
+                return;
+            }
 
             const messageStartsWithHeyOpenAI = message
                 .toLowerCase()
